@@ -338,6 +338,78 @@ Regular Tests, Notes, Doubt Classes and Personal Guidance.
     </div>
   </div>
 </section>
+<style>
+  #camera-section {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .camera-container {
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    max-width: 500px;
+    margin: 0 auto 20px auto;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    aspect-ratio: 4/3;
+  }
+  #webcam {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Mirror effect taaki natural dikhe */
+  }
+  .cam-btn {
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 5px;
+    transition: background 0.3s;
+  }
+  .btn-start { background-color: #007bff; color: white; }
+  .btn-start:hover { background-color: #0056b3; }
+  .btn-stop { background-color: #dc3545; color: white; }
+  .btn-stop:hover { background-color: #bd2130; }
+</style>
+
+<section id="camera-section">
+  <h3 style="color: white; margin-bottom: 20px;">📷 Live Webcam Test</h3>
+  
+  <div class="camera-container">
+    <video id="webcam" autoplay playsinline></video>
+  </div>
+
+  <button class="cam-btn btn-start" onclick="startCamera()">Start Camera</button>
+  <button class="cam-btn btn-stop" onclick="stopCamera()">Stop Camera</button>
+</section>
+
+<script>
+  let stream = null;
+
+  async function startCamera() {
+    try {
+      // User se camera ki permission maang rha hai
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      const videoElement = document.getElementById('webcam');
+      videoElement.srcObject = stream;
+    } catch (error) {
+      alert("Camera access nahi mila! Kripya permission check karein.");
+      console.error("Camera error:", error);
+    }
+  }
+
+  function stopCamera() {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      document.getElementById('webcam').srcObject = null;
+    }
+  }
+</script>
 
 <section id="contact">
 
