@@ -428,6 +428,53 @@ Regular Tests, Notes, Doubt Classes and Personal Guidance.
   .recording-active { background: #ed4956; animation: blinker 1.5s linear infinite; }
   @keyframes blinker { 50% { opacity: 0; } }
 </style>
+  <div style="background: #121212; padding: 25px; border-radius: 20px; text-align: center; color: white; max-width: 500px; margin: 20px auto; border: 1px solid #262626;">
+  <h3 style="margin-bottom: 20px;">Contact & Voice Note</h3>
+  
+  <a href="https://wa.me/9182213442697" target="_blank" 
+     style="display: block; background: #25D366; color: white; padding: 15px; text-decoration: none; border-radius: 50px; font-weight: bold; margin-bottom: 15px;">
+     💬 Chat on WhatsApp
+  </a>
+
+  <div id="voice-recorder-ui" style="background: #1c1c1e; padding: 15px; border-radius: 15px;">
+    <p id="audio-status" style="font-size: 14px; color: #8e8e93;">Tap Record to send a voice note</p>
+    <div style="display: flex; justify-content: center; gap: 10px;">
+      <button id="rec-btn" onclick="startAudioRecording()" style="background: #ff3b30; border: none; padding: 10px 20px; border-radius: 20px; color: white; font-weight: bold; cursor: pointer;">🎤 Record</button>
+      <button id="stop-btn" onclick="stopAudioRecording()" style="background: #3a3a3c; border: none; padding: 10px 20px; border-radius: 20px; color: white; font-weight: bold; cursor: pointer; display: none;">⏹️ Stop</button>
+      <button id="dl-btn" onclick="downloadAudio()" style="background: #007aff; border: none; padding: 10px 20px; border-radius: 20px; color: white; font-weight: bold; cursor: pointer; display: none;">💾 Download</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let mediaRecorder, audioChunks = [];
+  async function startAudioRecording() {
+    audioChunks = [];
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      document.getElementById('audio-status').innerText = "Voice note ready!";
+      document.getElementById('dl-btn').style.display = 'inline-block';
+    };
+    mediaRecorder.start();
+    document.getElementById('audio-status').innerText = "🔴 Recording...";
+    document.getElementById('rec-btn').style.display = 'none';
+    document.getElementById('stop-btn').style.display = 'inline-block';
+  }
+  function stopAudioRecording() {
+    mediaRecorder.stop();
+    document.getElementById('rec-btn').style.display = 'inline-block';
+    document.getElementById('stop-btn').style.display = 'none';
+  }
+  function downloadAudio() {
+    const blob = new Blob(audioChunks, { type: 'audio/wav' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'voice_note.wav'; a.click();
+  }
+</script>
+  
 
 <div class="section-heading">
   <h3 style="background: linear-gradient(45deg, #fccc63, #f77737, #d62976, #e1306c, #405de6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 28px; font-weight:800; margin-bottom: 5px;">📸 Instagram Advanced Reels & Doc Studio</h3>
