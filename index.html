@@ -705,6 +705,140 @@ Regular Tests, Notes, Doubt Classes and Personal Guidance.
     <button class="btn-res" style="background: #f77737; color: white;">Buy Now</button>
   </div>
 </div>
+<div class="payment-box">
+
+<h2>Payment Gateway</h2>
+
+<input id="name" placeholder="Enter Name">
+<input id="amount" placeholder="Enter Amount">
+<input id="offer" placeholder="Offer Code (optional)">
+
+<button onclick="startPayment()">Pay Now</button>
+
+<div id="paymentArea"></div>
+
+</div>
+  let timer;
+let otpCode;
+
+function startPayment(){
+
+let name = document.getElementById("name").value;
+let amount = parseFloat(document.getElementById("amount").value);
+let offer = document.getElementById("offer").value;
+
+let discount = 0;
+
+if(offer === "SAVE10") discount = amount * 0.10;
+if(offer === "NEW50") discount = 50;
+
+let finalAmount = amount - discount;
+if(finalAmount < 0) finalAmount = 0;
+
+let upi = "vikrantsharma51425@ybl";
+let txn = "TXN" + Date.now();
+
+// QR
+let upiLink = `upi://pay?pa=${upi}&pn=${name}&am=${finalAmount}&cu=INR&tn=${txn}`;
+let qr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${upiLink}`;
+
+// OTP generate (fake system)
+otpCode = Math.floor(1000 + Math.random() * 9000);
+
+// UI
+document.getElementById("paymentArea").innerHTML = `
+
+<h3>Scan QR to Pay</h3>
+<img src="${qr}">
+
+<p>Final Amount: ₹${finalAmount}</p>
+<p>Transaction ID: ${txn}</p>
+
+<button onclick="sendOTP()">Send OTP</button>
+
+<div id="otpBox"></div>
+
+<p id="timer">Time Left: 10 sec</p>
+
+<button onclick="cancelPayment()">Cancel Payment</button>
+
+`;
+startTimer();
+}
+
+function startTimer(){
+let time = 10;
+
+timer = setInterval(()=>{
+time--;
+document.getElementById("timer").innerText = "Time Left: " + time + " sec";
+
+if(time <= 0){
+clearInterval(timer);
+document.getElementById("otpBox").innerHTML =
+"<b style='color:red'>Payment Expired ❌</b>";
+}
+},1000);
+}
+
+// OTP simulation
+function sendOTP(){
+alert("OTP sent to payer (demo): " + otpCode);
+
+document.getElementById("otpBox").innerHTML = `
+<input id="otpInput" placeholder="Enter OTP">
+<button onclick="verifyOTP()">Verify</button>
+`;
+}
+
+function verifyOTP(){
+let input = document.getElementById("otpInput").value;
+
+if(input == otpCode){
+clearInterval(timer);
+document.getElementById("otpBox").innerHTML =
+"<h3 style='color:green'>Payment Successful ✅</h3>";
+}
+else{
+document.getElementById("otpBox").innerHTML =
+"<h3 style='color:red'>Wrong OTP ❌</h3>";
+}
+}
+
+function cancelPayment(){
+clearInterval(timer);
+document.getElementById("paymentArea").innerHTML =
+"<h3 style='color:orange'>Payment Cancelled</h3>";
+}
+.payment-box{
+background:white;
+padding:20px;
+width:350px;
+margin:auto;
+border-radius:10px;
+box-shadow:0 0 10px gray;
+text-align:center;
+}
+
+input{
+width:90%;
+padding:10px;
+margin:5px;
+}
+
+button{
+padding:10px;
+margin:5px;
+background:green;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+img{
+width:180px;
+margin:10px;
+}
   
 <section id="contact">
 
