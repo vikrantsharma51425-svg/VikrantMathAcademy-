@@ -340,77 +340,252 @@ Regular Tests, Notes, Doubt Classes and Personal Guidance.
 </section>
 <style>
   #camera-section {
-    max-width: 900px;
+    max-width: 950px;
     margin: 40px auto;
     padding: 20px;
     text-align: center;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
-  .camera-container {
-    background: #000;
+  .camera-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  @media (min-width: 768px) {
+    .camera-grid {
+      flex-direction: row;
+      justify-content: center;
+    }
+  }
+  .cam-box-wrapper {
+    width: 100%;
+    max-width: 420px;
+    background: #111111;
     border-radius: 12px;
-    overflow: hidden;
-    max-width: 500px;
-    margin: 0 auto 20px auto;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    aspect-ratio: 4/3;
+    padding: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
   }
-  #webcam {
+  .cam-box-wrapper h4 {
+    margin: 0 0 10px 0;
+    color: #aaa;
+    font-size: 14px;
+    text-transform: uppercase;
+  }
+  .view-container {
+    background: #000000;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 4/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #webcam, #canvas, #playback {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transform: scaleX(-1); /* Mirror effect taaki natural dikhe */
   }
-  .cam-btn {
-    padding: 12px 24px;
+  #webcam {
+    transform: scaleX(-1); /* Mirror view for natural feel */
+  }
+  .controls-panel {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .action-btn {
+    padding: 12px 20px;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 600;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    margin: 5px;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
-  .btn-start { background-color: #007bff; color: white; }
-  .btn-start:hover { background-color: #0056b3; }
-  .btn-stop { background-color: #dc3545; color: white; }
-  .btn-stop:hover { background-color: #bd2130; }
+  .btn-power-on { background-color: #2563eb; color: white; }
+  .btn-power-on:hover { background-color: #1d4ed8; }
+  
+  .btn-capture { background-color: #eab308; color: #1e293b; }
+  .btn-capture:hover { background-color: #ca8a04; }
+  
+  .btn-rec-start { background-color: #16a34a; color: white; }
+  .btn-rec-start:hover { background-color: #166534; }
+  
+  .btn-rec-stop { background-color: #ea580c; color: white; display: none; }
+  .btn-rec-stop:hover { background-color: #c2410c; }
+  
+  .btn-power-off { background-color: #dc2626; color: white; }
+  .btn-power-off:hover { background-color: #b91c1c; }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    background: #333;
+    color: #fff;
+  }
+  .recording-active {
+    background: #dc2626;
+    animation: blinker 1.5s linear infinite;
+  }
+  @keyframes blinker {
+    50% { opacity: 0; }
+  }
 </style>
 
 <section id="camera-section">
-  <h3 style="color: white; margin-bottom: 20px;">📷 Live Webcam Test</h3>
+  <div class="section-heading">
+    <h3 style="color: #ffffff; font-size: 24px; margin-bottom: 5px;">📷 Advanced Studio Camera</h3>
+    <div id="cam-status" class="status-badge">Camera Status: Offline</div>
+  </div>
   
-  <div class="camera-container">
-    <video id="webcam" autoplay playsinline></video>
+  <div class="camera-grid">
+    <div class="cam-box-wrapper">
+      <h4>🔴 Live View / Recording Playback</h4>
+      <div class="view-container">
+        <video id="webcam" autoplay playsinline></video>
+        <video id="playback" controls style="display: none;"></video>
+      </div>
+    </div>
+    
+    <div class="cam-box-wrapper">
+      <h4>🖼️ Captured Snapshot</h4>
+      <div class="view-container">
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
   </div>
 
-  <button class="cam-btn btn-start" onclick="startCamera()">Start Camera</button>
-  <button class="cam-btn btn-stop" onclick="stopCamera()">Stop Camera</button>
+  <div class="controls-panel">
+    <button class="action-btn btn-power-on" onclick="startCamera()">🔌 Start Camera</button>
+    <button class="action-btn btn-capture" onclick="takePhoto()">📸 Take Picture</button>
+    <button class="action-btn btn-rec-start" id="start-rec-btn" onclick="startRecording()">⏺️ Record Video</button>
+    <button class="action-btn btn-rec-stop" id="stop-rec-btn" onclick="stopRecording()">⏹️ Stop Recording</button>
+    <button class="action-btn btn-power-off" onclick="stopCamera()">❌ Stop Camera</button>
+  </div>
 </section>
 
 <script>
-  let stream = null;
+  let mainStream = null;
+  let mediaRecorder = null;
+  let recordedChunks = [];
 
+  const webcamElem = document.getElementById('webcam');
+  const playbackElem = document.getElementById('playback');
+  const canvasElem = document.getElementById('canvas');
+  const statusBadge = document.getElementById('cam-status');
+  const startRecBtn = document.getElementById('start-rec-btn');
+  const stopRecBtn = document.getElementById('stop-rec-btn');
+
+  // 1. Start Camera
   async function startCamera() {
     try {
-      // User se camera ki permission maang rha hai
-      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-      const videoElement = document.getElementById('webcam');
-      videoElement.srcObject = stream;
-    } catch (error) {
-      alert("Camera access nahi mila! Kripya permission check karein.");
-      console.error("Camera error:", error);
+      recordedChunks = [];
+      playbackElem.style.display = 'none';
+      webcamElem.style.display = 'block';
+
+      mainStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      webcamElem.srcObject = mainStream;
+      
+      statusBadge.innerText = "Camera Status: Live";
+      statusBadge.className = "status-badge";
+      
+      // Canvas par black default box setup
+      const ctx = canvasElem.getContext('2d');
+      canvasElem.width = 640;
+      canvasElem.height = 480;
+      ctx.fillStyle = "#111111";
+      ctx.fillRect(0, 0, canvasElem.width, canvasElem.height);
+    } catch (err) {
+      alert("Camera standard permission nahi mili!");
+      console.error(err);
     }
   }
 
+  // 2. Take Picture (Snapshot)
+  function takePhoto() {
+    if (mainStream && webcamElem.srcObject) {
+      const ctx = canvasElem.getContext('2d');
+      canvasElem.width = webcamElem.videoWidth || 640;
+      canvasElem.height = webcamElem.videoHeight || 480;
+      
+      // Draw live frame onto canvas
+      ctx.drawImage(webcamElem, 0, 0, canvasElem.width, canvasElem.height);
+    } else {
+      alert("Pehle 'Start Camera' par click karein!");
+    }
+  }
+
+  // 3. Start Video Recording
+  function startRecording() {
+    if (!mainStream) {
+      alert("Pehle camera start kijiye!");
+      return;
+    }
+    
+    recordedChunks = [];
+    mediaRecorder = new MediaRecorder(mainStream, { mimeType: 'video/webm' });
+    
+    mediaRecorder.ondataavailable = function(e) {
+      if (e.data.size > 0) {
+        recordedChunks.push(e.data);
+      }
+    };
+
+    mediaRecorder.onstop = function() {
+      const blob = new Blob(recordedChunks, { type: 'video/webm' });
+      const videoURL = URL.createObjectURL(blob);
+      
+      // Hide live video, show recorded playback element
+      webcamElem.style.display = 'none';
+      playbackElem.style.display = 'block';
+      playbackElem.src = videoURL;
+    };
+
+    mediaRecorder.start();
+    statusBadge.innerText = "🔴 RECORDING ACTIVE";
+    statusBadge.className = "status-badge recording-active";
+    
+    startRecBtn.style.display = 'none';
+    stopRecBtn.style.display = 'inline-flex';
+  }
+
+  // 4. Stop Video Recording
+  function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+      statusBadge.innerText = "Camera Status: Playback Mode";
+      statusBadge.className = "status-badge";
+      
+      startRecBtn.style.display = 'inline-flex';
+      stopRecBtn.style.display = 'none';
+    }
+  }
+
+  // 5. Stop/Power Off Camera
   function stopCamera() {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      document.getElementById('webcam').srcObject = null;
+    if (mainStream) {
+      mainStream.getTracks().forEach(track => track.stop());
+      webcamElem.srcObject = null;
+      mainStream = null;
+      statusBadge.innerText = "Camera Status: Offline";
+      statusBadge.className = "status-badge";
+      startRecBtn.style.display = 'inline-flex';
+      stopRecBtn.style.display = 'none';
     }
   }
 </script>
-
+  
 <section id="contact">
 
 <h3>Contact Us</h3>
