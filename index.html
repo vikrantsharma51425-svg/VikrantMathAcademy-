@@ -216,7 +216,118 @@ Regular Tests, Notes, Doubt Classes and Personal Guidance.
 </div>
 
 </section>
-</section>
+#video-courses {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.section-heading h3 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Main Card Container */
+.course-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column; /* Phone par upar-neeche dikhega */
+}
+
+/* Desktop par side-by-side karne ke liye */
+@media (min-width: 768px) {
+  .course-card {
+    flex-direction: row;
+  }
+  .video-preview {
+    flex: 1.2; /* Video thoda bada dikhega */
+  }
+  .course-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+/* Video Wrapper */
+.video-preview {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  background: #000;
+}
+
+.video-preview iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Content Area */
+.course-info {
+  padding: 25px;
+}
+
+.course-info h2 {
+  font-size: 22px;
+  margin-top: 0;
+  color: #1a1a1a;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 25px;
+}
+
+/* Buttons Styling */
+.btn-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  text-decoration: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  flex: 1;
+  min-width: 140px;
+  transition: all 0.3s ease;
+}
+
+.btn-demo {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+}
+
+.btn-demo:hover {
+  background-color: #e5e7eb;
+}
+
+.btn-buy {
+  background-color: #25d366; /* WhatsApp Green */
+  color: white;
+}
+
+.btn-buy:hover {
+  background-color: #20ba5a;
+  box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+}
+
 <section id="contact">
 
 <h3>Contact Us</h3>
