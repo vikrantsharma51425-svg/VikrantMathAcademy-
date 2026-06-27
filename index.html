@@ -216,117 +216,128 @@ Regular Tests, Notes, Doubt Classes and Personal Guidance.
 </div>
 
 </section>
-#video-courses {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.section-heading h3 {
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-/* Main Card Container */
-.course-card {
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column; /* Phone par upar-neeche dikhega */
-}
-
-/* Desktop par side-by-side karne ke liye */
-@media (min-width: 768px) {
+<style>
+  #video-courses {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .section-heading h3 {
+    font-size: 24px;
+    color: #ffffff; /* Text color white taaki dark background par dikhe */
+    margin-bottom: 20px;
+  }
   .course-card {
-    flex-direction: row;
-  }
-  .video-preview {
-    flex: 1.2; /* Video thoda bada dikhega */
-  }
-  .course-info {
-    flex: 1;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: center;
   }
-}
+  @media (min-width: 768px) {
+    .course-card { 
+      flex-direction: row; 
+    }
+    .video-preview { 
+      flex: 1.2; 
+    }
+    .course-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+  }
+  .video-preview {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    background: #000;
+  }
+  .video-preview iframe {
+    position: absolute;
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    border: none;
+  }
+  .course-info { 
+    padding: 25px; 
+    color: #333333; /* Card ke andar ka text dark gray */
+  }
+  .course-info h2 { 
+    font-size: 22px; 
+    margin-top: 0; 
+    color: #1a1a1a; 
+  }
+  .subtitle { 
+    color: #666; 
+    font-size: 14px; 
+    line-height: 1.5; 
+    margin-bottom: 25px; 
+  }
+  .btn-group { 
+    display: flex; 
+    gap: 12px; 
+    flex-wrap: wrap; 
+  }
+  .btn-video {
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    flex: 1;
+    min-width: 140px;
+    transition: all 0.3s ease;
+  }
+  .btn-demo-video { 
+    background-color: #f3f4f6; 
+    color: #4b5563; 
+    border: 1px solid #d1d5db; 
+  }
+  .btn-demo-video:hover { 
+    background-color: #e5e7eb; 
+  }
+  .btn-buy-video { 
+    background-color: #25d366; 
+    color: white; 
+  }
+  .btn-buy-video:hover { 
+    background-color: #20ba5a; 
+    box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); 
+  }
+</style>
 
-/* Video Wrapper */
-.video-preview {
-  position: relative;
-  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-  height: 0;
-  background: #000;
-}
+<section id="video-courses">
+  <div class="section-heading">
+    <h3>🎥 Video Courses</h3>
+  </div>
 
-.video-preview iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
+  <div class="course-card">
+    <div class="video-preview">
+      <iframe src="https://www.youtube.com/embed/tgbNymZ7vqY" allowfullscreen></iframe>
+    </div>
 
-/* Content Area */
-.course-info {
-  padding: 25px;
-}
-
-.course-info h2 {
-  font-size: 22px;
-  margin-top: 0;
-  color: #1a1a1a;
-}
-
-.subtitle {
-  color: #666;
-  font-size: 14px;
-  line-height: 1.5;
-  margin-bottom: 25px;
-}
-
-/* Buttons Styling */
-.btn-group {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.btn {
-  text-decoration: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  text-align: center;
-  flex: 1;
-  min-width: 140px;
-  transition: all 0.3s ease;
-}
-
-.btn-demo {
-  background-color: #f3f4f6;
-  color: #4b5563;
-  border: 1px solid #d1d5db;
-}
-
-.btn-demo:hover {
-  background-color: #e5e7eb;
-}
-
-.btn-buy {
-  background-color: #25d366; /* WhatsApp Green */
-  color: white;
-}
-
-.btn-buy:hover {
-  background-color: #20ba5a;
-  box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
-}
+    <div class="course-info">
+      <h2>Complete Mathematics Course</h2>
+      <p class="subtitle">Class 8th to 12th | Recorded Lectures | Notes | Test Series</p>
+      
+      <div class="btn-group">
+        <a class="btn-video btn-demo-video" href="https://youtube.com/@YOURCHANNEL" target="_blank">
+          ▶ Watch on YouTube
+        </a>
+        <a class="btn-video btn-buy-video" href="https://wa.me/918221944269?text=I%20want%20to%20buy%20the%20Mathematics%20Video%20Course" target="_blank">
+          💬 Buy Course
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section id="contact">
 
