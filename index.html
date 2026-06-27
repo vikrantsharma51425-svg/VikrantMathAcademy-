@@ -760,6 +760,50 @@ href="https://wa.me/918221944269"
 target="_blank">
 💬 WhatsApp
 </a>
+  <script>
+// 1. Payment Processing Logic
+function startPayment() {
+    let name = document.getElementById("name").value;
+    let amount = parseFloat(document.getElementById("amount").value);
+    let offer = document.getElementById("offer").value;
+
+    if (!name || isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid name and amount!");
+        return;
+    }
+
+    let discount = 0;
+    if (offer === "SAVE10") discount = amount * 0.10;
+    if (offer === "NEW50") discount = 50;
+
+    let finalAmount = amount - discount;
+    if (finalAmount < 0) finalAmount = 0;
+
+    let upi = "vikrantsharma51425@ybl";
+    let txn = "TXN" + Date.now();
+    let upilink = `upi://pay?pa=vikrantsharma51425@ybl&pn=${encodeURIComponent(name)}&am=${finalAmount}&cu=INR&tn=${txn}`;
+  
+    
+    // QR Code Display
+    document.getElementById("paymentArea").innerHTML = `
+        <h3>Scan QR to Pay</h3>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upilink)}" alt="QR Code">
+        <p>Final Amount: ₹${finalAmount}</p>
+        <button onclick="alert('Proceeding...')">Send OTP</button>
+    `;
+}
+
+// 2. New Buttons Logic
+function payViaUPI() {
+    let upi = "vikrantsharma51425@ybl";
+    window.location.href = `upi://pay?pa=${upi}&pn=VikrantMathAcademy`;
+}
+
+function payViaCard() {
+    alert("Card payment currently unavailable.");
+}
+  </script>
+  
 
 </body>
 </html>
