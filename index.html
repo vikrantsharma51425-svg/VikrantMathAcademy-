@@ -681,7 +681,31 @@ Regular Tests, Notes, Doubt Classes and Personal Guidance.
   }
   function dragEnd() { activeDragItem = null; document.removeEventListener('mousemove', dragMove); document.removeEventListener('mouseup', dragEnd); }
 </script>
+<style>
+  .resource-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 20px; }
+  .resource-card { background: #1c1c1e; border-radius: 15px; padding: 20px; border: 1px solid #333; text-align: center; color: white; }
+  .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 10px; display: inline-block; }
+  .free { background: #34c759; color: #000; }
+  .paid { background: #ff3b30; color: #fff; }
+  .btn-res { margin-top: 15px; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
+</style>
 
+<div class="resource-grid">
+  <div class="resource-card">
+    <span class="badge free">FREE</span>
+    <h3>Calculus Mock Test</h3>
+    <p>Practice 50 important questions.</p>
+    <button class="btn-res" style="background: #007aff; color: white;">Start Test</button>
+  </div>
+
+  <div class="resource-card">
+    <span class="badge paid">PAID</span>
+    <h3>Advanced Algebra Notes</h3>
+    <p>Comprehensive PDF Notes (Premium)</p>
+    <button class="btn-res" style="background: #f77737; color: white;">Buy Now</button>
+  </div>
+</div>
+  
 <section id="contact">
 
 <h3>Contact Us</h3>
