@@ -740,7 +740,8 @@ let txn = "TXN" + Date.now();
 
 // QR
 let upiLink = `upi://pay?pa=${upi}&pn=${name}&am=${finalAmount}&cu=INR&tn=${txn}`;
-let qr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${upiLink}`;
+let qr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upilink)}`;
+  
 
 // OTP generate (fake system)
 otpCode = Math.floor(1000 + Math.random() * 9000);
