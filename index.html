@@ -338,254 +338,303 @@ Regular Tests, Notes, Doubt Classes and Personal Guidance.
     </div>
   </div>
 </section>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
   #camera-section {
-    max-width: 950px;
+    max-width: 1000px;
     margin: 40px auto;
-    padding: 20px;
+    padding: 25px;
     text-align: center;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #000000;
+    border-radius: 16px;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   }
   .camera-grid {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 25px;
+    margin-top: 20px;
   }
   @media (min-width: 768px) {
-    .camera-grid {
-      flex-direction: row;
-      justify-content: center;
-    }
+    .camera-grid { flex-direction: row; justify-content: center; }
   }
   .cam-box-wrapper {
     width: 100%;
-    max-width: 420px;
-    background: #111111;
+    max-width: 440px;
+    background: #121212;
+    border: 1px solid #262626;
     border-radius: 12px;
-    padding: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    padding: 15px;
+    position: relative;
   }
   .cam-box-wrapper h4 {
-    margin: 0 0 10px 0;
-    color: #aaa;
-    font-size: 14px;
-    text-transform: uppercase;
+    margin: 0 0 12px 0; color: #dbdbdb; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
   }
   .view-container {
-    background: #000000;
-    border-radius: 8px;
-    overflow: hidden;
-    width: 100%;
-    aspect-ratio: 4/3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: #000000; border-radius: 8px; overflow: hidden; width: 100%;
+    aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; position: relative;
   }
-  #webcam, #canvas, #playback {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  #webcam, #playback, .crop-wrapper { width: 100%; height: 100%; object-fit: cover; transition: filter 0.3s ease; }
+  #webcam { transform: scaleX(-1); }
+  .crop-wrapper { display: none; width: 100%; height: 100%; }
+  #crop-image { max-width: 100%; max-height: 100%; }
+  #canvas { display: none; }
+  #final-preview { width: 100%; height: 100%; object-fit: contain; display: block; transition: filter 0.3s ease; }
+
+  .sticker-overlay {
+    position: absolute; width: 60px; height: 60px; cursor: move; display: none;
+    user-select: none; z-index: 10; top: 20px; left: 20px; font-size: 45px; text-align: center; line-height: 60px;
   }
-  #webcam {
-    transform: scaleX(-1); /* Mirror view for natural feel */
+
+  .instafx-panel {
+    background: #1c1c1e; padding: 15px; border-radius: 12px; margin-top: 15px;
+    display: none; color: white; font-size: 14px; flex-direction: column; gap: 15px; text-align: left;
   }
+  .fx-row { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
+  .fx-group { display: flex; flex-direction: column; gap: 5px; min-width: 130px; }
+  .fx-group select, .fx-group input[type="range"] {
+    background: #2c2c2e; color: white; border: 1px solid #3a3a3c; padding: 8px; border-radius: 8px;
+  }
+
   .controls-panel {
-    margin-top: 25px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    margin-top: 25px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
   }
   .action-btn {
-    padding: 12px 20px;
-    font-size: 14px;
-    font-weight: 600;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    padding: 12px 20px; font-size: 14px; font-weight: 600; border: none;
+    border-radius: 8px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;
   }
-  .btn-power-on { background-color: #2563eb; color: white; }
-  .btn-power-on:hover { background-color: #1d4ed8; }
+  .btn-power-on { background-color: #0095f6; color: white; }
+  .btn-upload { background-color: #262626; color: white; border: 1px solid #363636; }
+  .btn-capture { background-color: #fd1d1d; color: white; }
+  .btn-crop-save { background-color: #a855f7; color: white; display: none; }
+  .btn-download-master { background-color: #4ade80; color: #111; font-weight: bold; display: none; }
+  .btn-discard { background-color: #3a3a3c; color: white; display: none; }
   
-  .btn-capture { background-color: #eab308; color: #1e293b; }
-  .btn-capture:hover { background-color: #ca8a04; }
-  
-  .btn-rec-start { background-color: #16a34a; color: white; }
-  .btn-rec-start:hover { background-color: #166534; }
-  
-  .btn-rec-stop { background-color: #ea580c; color: white; display: none; }
-  .btn-rec-stop:hover { background-color: #c2410c; }
-  
-  .btn-power-off { background-color: #dc2626; color: white; }
-  .btn-power-off:hover { background-color: #b91c1c; }
+  .btn-rec-start { background-color: #fccc63; color: #111; }
+  .btn-rec-stop { background-color: #f77737; color: white; display: none; }
+  .btn-gif { background-color: #d62976; color: white; }
+  .btn-power-off { background-color: #262626; color: #8e8e8e; }
 
   .status-badge {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    background: #333;
-    color: #fff;
+    display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 12px;
+    font-weight: bold; margin-bottom: 10px; background: #262626; color: #fff; border: 1px solid #363636;
   }
-  .recording-active {
-    background: #dc2626;
-    animation: blinker 1.5s linear infinite;
-  }
-  @keyframes blinker {
-    50% { opacity: 0; }
-  }
+  .recording-active { background: #ed4956; animation: blinker 1.5s linear infinite; }
+  @keyframes blinker { 50% { opacity: 0; } }
 </style>
 
-<section id="camera-section">
-  <div class="section-heading">
-    <h3 style="color: #ffffff; font-size: 24px; margin-bottom: 5px;">📷 Advanced Studio Camera</h3>
-    <div id="cam-status" class="status-badge">Camera Status: Offline</div>
+<div class="section-heading">
+  <h3 style="background: linear-gradient(45deg, #fccc63, #f77737, #d62976, #e1306c, #405de6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 28px; font-weight:800; margin-bottom: 5px;">📸 Instagram Advanced Reels & Doc Studio</h3>
+  <div id="cam-status" class="status-badge">Studio Status: Offline</div>
+</div>
+
+<div class="camera-grid">
+  <div class="cam-box-wrapper">
+    <h4>🔴 Live Recording / Playback Preview</h4>
+    <div class="view-container" id="video-container-box">
+      <video id="webcam" autoplay playsinline></video>
+      <video id="playback" controls style="display: none;"></video>
+      <div class="sticker-overlay" id="video-sticker" onmousedown="dragStart(event, this)" ontouchstart="dragStart(event, this)">🔥</div>
+    </div>
   </div>
   
-  <div class="camera-grid">
-    <div class="cam-box-wrapper">
-      <h4>🔴 Live View / Recording Playback</h4>
-      <div class="view-container">
-        <video id="webcam" autoplay playsinline></video>
-        <video id="playback" controls style="display: none;"></video>
+  <div class="cam-box-wrapper">
+    <h4>🖼️ Image Editor & Effects Canvas</h4>
+    <div class="view-container" id="image-container-box">
+      <div class="crop-wrapper" id="crop-box">
+        <img id="crop-image" src="" alt="To Crop">
       </div>
-    </div>
-    
-    <div class="cam-box-wrapper">
-      <h4>🖼️ Captured Snapshot</h4>
-      <div class="view-container">
-        <canvas id="canvas"></canvas>
-      </div>
+      <img id="final-preview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Output Frame">
+      <div class="sticker-overlay" id="image-sticker" onmousedown="dragStart(event, this)" ontouchstart="dragStart(event, this)">👑</div>
+      <canvas id="canvas"></canvas>
     </div>
   </div>
+</div>
 
-  <div class="controls-panel">
-    <button class="action-btn btn-power-on" onclick="startCamera()">🔌 Start Camera</button>
-    <button class="action-btn btn-capture" onclick="takePhoto()">📸 Take Picture</button>
-    <button class="action-btn btn-rec-start" id="start-rec-btn" onclick="startRecording()">⏺️ Record Video</button>
-    <button class="action-btn btn-rec-stop" id="stop-rec-btn" onclick="stopRecording()">⏹️ Stop Recording</button>
-    <button class="action-btn btn-power-off" onclick="stopCamera()">❌ Stop Camera</button>
+<div class="instafx-panel" id="insta-panel">
+  <strong style="color: #f77737; font-size: 15px;">⚡ Creative FX & Editing Tools:</strong>
+  <div class="fx-row">
+    <div class="fx-group">
+      <label>🎨 Insta Filters</label>
+      <select id="insta-filter" onchange="applyInstaFilters()">
+        <option value="none">Normal (No Filter)</option>
+        <option value="grayscale(100%)">Clarendon (B&W)</option>
+        <option value="sepia(80%) contrast(120%)">Valencia (Warm Sepia)</option>
+        <option value="invert(100%)">Invert (Neon Magic)</option>
+        <option value="hue-rotate(90deg)">Glow (Color Shift)</option>
+        <option value="blur(4px)">Bokeh (Soft Blur)</option>
+      </select>
+    </div>
+
+    <div class="fx-group">
+      <label>🎵 Add Reels Music</label>
+      <select id="reels-music" onchange="manageBackgroundMusic()">
+        <option value="none">No Music (Mute Track)</option>
+        <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">Trending Beats (Vibe 1)</option>
+        <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3">Lofi Chill Melody (Vibe 2)</option>
+      </select>
+    </div>
+
+    <div class="fx-group">
+      <label>🧸 Add Sticker/Emoji</label>
+      <select id="sticker-selector" onchange="applyStickerOverlay()">
+        <option value="none">No Sticker</option>
+        <option value="🔥">🔥 Fire Mode</option>
+        <option value="👑">👑 King Crown</option>
+        <option value="❤️">❤️ Love Heart</option>
+        <option value="😎">😎 Cool Boy</option>
+      </select>
+    </div>
+
+    <div class="fx-group">
+      <label>💾 Save Format</label>
+      <select id="export-format">
+        <option value="jpg">High Res JPG Image</option>
+        <option value="pdf">Compressed PDF Doc</option>
+      </select>
+    </div>
+    <div class="fx-group">
+      <label id="quality-label">📉 Quality/Compression: 80%</label>
+      <input type="range" id="quality-slider" min="10" max="100" value="80" oninput="document.getElementById('quality-label').innerText='📉 Quality/Compression: '+this.value+'%'">
+    </div>
   </div>
-</section>
+</div>
+
+<input type="file" id="file-uploader" accept="image/jpeg, image/png" style="display: none;" onchange="handleImageUpload(event)">
+<audio id="bg-audio-player" loop></audio>
+
+<div class="controls-panel">
+  <button class="action-btn btn-power-on" onclick="startCamera()">🔌 Open Camera</button>
+  <button class="action-btn btn-upload" onclick="document.getElementById('file-uploader').click()">📂 Upload Photo</button>
+  <button class="action-btn btn-capture" id="snap-btn" onclick="takePhoto()">📸 Capture Photo</button>
+  <button class="action-btn btn-crop-save" id="crop-save-btn" onclick="saveCrop()">✅ Apply Crop</button>
+  <button class="action-btn btn-download-master" id="download-master-btn" onclick="processMasterDownload()">💾 Save & Download</button>
+  <button class="action-btn btn-discard" id="discard-btn" onclick="discardEdits()">🗑️ Discard</button>
+  
+  <button class="action-btn btn-rec-start" id="start-rec-btn" onclick="startRecording(false)">🎥 Record Reel</button>
+  <button class="action-btn btn-gif" id="gif-btn" onclick="startRecording(true)">🖼️ Create GIF (5s)</button>
+  <button class="action-btn btn-rec-stop" id="stop-rec-btn" onclick="stopRecording()">⏹️ Stop Reel</button>
+  <button class="action-btn btn-power-off" onclick="stopCamera()">❌ Close Studio</button>
+</div>
 
 <script>
-  let mainStream = null;
-  let mediaRecorder = null;
-  let recordedChunks = [];
+  let mainStream = null, mediaRecorder = null, recordedChunks = [], cropper = null, baseCroppedDataUrl = null, activeDragItem = null;
+  const webcamElem = document.getElementById('webcam'), playbackElem = document.getElementById('playback'), canvasElem = document.getElementById('canvas');
+  const finalPreview = document.getElementById('final-preview'), cropBox = document.getElementById('crop-box'), cropImage = document.getElementById('crop-image'), audioPlayer = document.getElementById('bg-audio-player');
+  const statusBadge = document.getElementById('cam-status'), startRecBtn = document.getElementById('start-rec-btn'), gifBtn = document.getElementById('gif-btn'), stopRecBtn = document.getElementById('stop-rec-btn'), snapBtn = document.getElementById('snap-btn'), cropSaveBtn = document.getElementById('crop-save-btn'), downloadMasterBtn = document.getElementById('download-master-btn'), discardBtn = document.getElementById('discard-btn'), instaPanel = document.getElementById('insta-panel');
 
-  const webcamElem = document.getElementById('webcam');
-  const playbackElem = document.getElementById('playback');
-  const canvasElem = document.getElementById('canvas');
-  const statusBadge = document.getElementById('cam-status');
-  const startRecBtn = document.getElementById('start-rec-btn');
-  const stopRecBtn = document.getElementById('stop-rec-btn');
-
-  // 1. Start Camera
   async function startCamera() {
     try {
-      recordedChunks = [];
-      playbackElem.style.display = 'none';
-      webcamElem.style.display = 'block';
-
+      playbackElem.style.display = 'none'; webcamElem.style.display = 'block'; discardEdits();
       mainStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      webcamElem.srcObject = mainStream;
-      
-      statusBadge.innerText = "Camera Status: Live";
-      statusBadge.className = "status-badge";
-      
-      // Canvas par black default box setup
-      const ctx = canvasElem.getContext('2d');
-      canvasElem.width = 640;
-      canvasElem.height = 480;
-      ctx.fillStyle = "#111111";
-      ctx.fillRect(0, 0, canvasElem.width, canvasElem.height);
-    } catch (err) {
-      alert("Camera standard permission nahi mili!");
-      console.error(err);
-    }
+      webcamElem.srcObject = mainStream; statusBadge.innerText = "Studio Status: Camera Live"; instaPanel.style.display = 'flex';
+    } catch (err) { alert("Camera permissions required!"); }
   }
-
-  // 2. Take Picture (Snapshot)
+  function handleImageUpload(event) {
+    const file = event.target.files[0]; if (!file) return; discardEdits();
+    const reader = new FileReader(); reader.onload = function(e) { initCropperUI(e.target.result); instaPanel.style.display = 'flex'; }; reader.readAsDataURL(file);
+  }
   function takePhoto() {
     if (mainStream && webcamElem.srcObject) {
-      const ctx = canvasElem.getContext('2d');
-      canvasElem.width = webcamElem.videoWidth || 640;
-      canvasElem.height = webcamElem.videoHeight || 480;
-      
-      // Draw live frame onto canvas
-      ctx.drawImage(webcamElem, 0, 0, canvasElem.width, canvasElem.height);
-    } else {
-      alert("Pehle 'Start Camera' par click karein!");
+      const ctx = canvasElem.getContext('2d'); canvasElem.width = webcamElem.videoWidth || 640; canvasElem.height = webcamElem.videoHeight || 480;
+      ctx.drawImage(webcamElem, 0, 0, canvasElem.width, canvasElem.height); initCropperUI(canvasElem.toDataURL('image/jpeg'));
+    } else { alert("Pehle Camera Open kijiye!"); }
+  }
+  function initCropperUI(dataUrl) {
+    if(cropper) { cropper.destroy(); } finalPreview.style.display = 'none'; cropBox.style.display = 'block'; cropImage.src = dataUrl;
+    cropper = new Cropper(cropImage, { aspectRatio: NaN, viewMode: 1, autoCropArea: 1 }); snapBtn.style.display = 'none'; cropSaveBtn.style.display = 'inline-flex';
+  }
+  function saveCrop() {
+    if (!cropper) return; baseCroppedDataUrl = cropper.getCroppedCanvas().toDataURL('image/jpeg'); cropper.destroy(); cropper = null;
+    cropBox.style.display = 'none'; finalPreview.style.display = 'block'; finalPreview.src = baseCroppedDataUrl;
+    cropSaveBtn.style.display = 'none'; snapBtn.style.display = 'inline-flex'; downloadMasterBtn.style.display = 'inline-flex'; discardBtn.style.display = 'inline-flex'; applyInstaFilters();
+  }
+  function applyInstaFilters() {
+    const selectedFilter = document.getElementById('insta-filter').value;
+    webcamElem.style.filter = selectedFilter; playbackElem.style.filter = selectedFilter; finalPreview.style.filter = selectedFilter;
+  }
+  function manageBackgroundMusic() {
+    const song = document.getElementById('reels-music').value;
+    if(song === 'none') { audioPlayer.pause(); audioPlayer.src = ""; } else { audioPlayer.src = song; audioPlayer.play().catch(e => console.log("Music click trigger required")); }
+  }
+  function applyStickerOverlay() {
+    const val = document.getElementById('sticker-selector').value;
+    const vSticker = document.getElementById('video-sticker'), iSticker = document.getElementById('image-sticker');
+    if(val === 'none') { vSticker.style.display = 'none'; iSticker.style.display = 'none'; } else {
+      vSticker.innerText = val; iSticker.innerText = val;
+      if(webcamElem.style.display !== 'none') vSticker.style.display = 'block';
+      if(baseCroppedDataUrl) iSticker.style.display = 'block';
     }
   }
-
-  // 3. Start Video Recording
-  function startRecording() {
-    if (!mainStream) {
-      alert("Pehle camera start kijiye!");
-      return;
-    }
-    
-    recordedChunks = [];
-    mediaRecorder = new MediaRecorder(mainStream, { mimeType: 'video/webm' });
-    
-    mediaRecorder.ondataavailable = function(e) {
-      if (e.data.size > 0) {
-        recordedChunks.push(e.data);
+  function processMasterDownload() {
+    if (!baseCroppedDataUrl) return;
+    const format = document.getElementById('export-format').value;
+    const qualityRatio = document.getElementById('quality-slider').value / 100;
+    const tempImg = new Image(); tempImg.src = baseCroppedDataUrl;
+    tempImg.onload = function() {
+      const tempCanvas = document.createElement('canvas'); const tempCtx = tempCanvas.getContext('2d');
+      tempCanvas.width = tempImg.width; tempCanvas.height = tempImg.height;
+      tempCtx.filter = document.getElementById('insta-filter').value;
+      tempCtx.drawImage(tempImg, 0, 0, tempCanvas.width, tempCanvas.height);
+      const finalBakedData = tempCanvas.toDataURL('image/jpeg', qualityRatio);
+      if (format === 'pdf') {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: tempCanvas.width > tempCanvas.height ? 'l' : 'p', unit: 'px', format: [tempCanvas.width, tempCanvas.height] });
+        doc.addImage(finalBakedData, 'JPEG', 0, 0, tempCanvas.width, tempCanvas.height); doc.save("insta_document.pdf");
+      } else {
+        const downloadLink = document.createElement('a'); downloadLink.href = finalBakedData; downloadLink.download = "insta_post.jpg"; downloadLink.click();
       }
     };
-
+  }
+  function discardEdits() {
+    if(cropper) { cropper.destroy(); cropper = null; }
+    cropBox.style.display = 'none'; finalPreview.style.display = 'block'; finalPreview.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+    document.getElementById('insta-filter').value = "none"; document.getElementById('reels-music').value = "none"; document.getElementById('sticker-selector').value = "none";
+    applyInstaFilters(); manageBackgroundMusic(); applyStickerOverlay();
+    downloadMasterBtn.style.display = 'none'; cropSaveBtn.style.display = 'none'; discardBtn.style.display = 'none'; snapBtn.style.display = 'inline-flex';
+    baseCroppedDataUrl = null;
+  }
+  function startRecording(gifModeActive) {
+    if (!mainStream) return; recordedChunks = []; playbackElem.style.display = 'none'; webcamElem.style.display = 'block';
+    mediaRecorder = new MediaRecorder(mainStream, { mimeType: 'video/webm' });
+    mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) { recordedChunks.push(e.data); } };
     mediaRecorder.onstop = function() {
       const blob = new Blob(recordedChunks, { type: 'video/webm' });
-      const videoURL = URL.createObjectURL(blob);
-      
-      // Hide live video, show recorded playback element
-      webcamElem.style.display = 'none';
-      playbackElem.style.display = 'block';
-      playbackElem.src = videoURL;
+      webcamElem.style.display = 'none'; playbackElem.style.display = 'block'; playbackElem.src = URL.createObjectURL(blob);
+      playbackElem.loop = gifModeActive; playbackElem.muted = gifModeActive; discardBtn.style.display = 'inline-flex';
     };
-
     mediaRecorder.start();
-    statusBadge.innerText = "🔴 RECORDING ACTIVE";
-    statusBadge.className = "status-badge recording-active";
-    
-    startRecBtn.style.display = 'none';
-    stopRecBtn.style.display = 'inline-flex';
+    statusBadge.innerText = gifModeActive ? "🖼️ GIF GENERATOR ACTIVE..." : "🎬 REEL RECORDING LIVE...";
+    statusBadge.className = "status-badge recording-active"; startRecBtn.style.display = 'none'; gifBtn.style.display = 'none';
+    if (gifModeActive) { setTimeout(() => { stopRecording(); }, 5000); } else { stopRecBtn.style.display = 'inline-flex'; }
   }
+  function stopRecording() { if (mediaRecorder && mediaRecorder.state !== 'inactive') { mediaRecorder.stop(); statusBadge.innerText = "Studio Status: Reel Mastered"; statusBadge.className = "status-badge"; startRecBtn.style.display = 'inline-flex'; gifBtn.style.display = 'inline-flex'; stopRecBtn.style.display = 'none'; } }
+  function stopCamera() { if (mainStream) { mainStream.getTracks().forEach(track => track.stop()); webcamElem.srcObject = null; mainStream = null; statusBadge.innerText = "Studio Status: Offline"; instaPanel.style.display = 'none'; discardEdits(); } }
 
-  // 4. Stop Video Recording
-  function stopRecording() {
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-      mediaRecorder.stop();
-      statusBadge.innerText = "Camera Status: Playback Mode";
-      statusBadge.className = "status-badge";
-      
-      startRecBtn.style.display = 'inline-flex';
-      stopRecBtn.style.display = 'none';
-    }
+  let offsetX = 0, offsetY = 0;
+  function dragStart(e, elem) {
+    activeDragItem = elem; const clientX = e.clientX || e.touches[0].clientX; const clientY = e.clientY || e.touches[0].clientY;
+    offsetX = clientX - activeDragItem.getBoundingClientRect().left; offsetY = clientY - activeDragItem.getBoundingClientRect().top;
+    document.addEventListener('mousemove', dragMove); document.addEventListener('mouseup', dragEnd);
+    document.addEventListener('touchmove', dragMove, { passive: false }); document.addEventListener('touchend', dragEnd);
   }
-
-  // 5. Stop/Power Off Camera
-  function stopCamera() {
-    if (mainStream) {
-      mainStream.getTracks().forEach(track => track.stop());
-      webcamElem.srcObject = null;
-      mainStream = null;
-      statusBadge.innerText = "Camera Status: Offline";
-      statusBadge.className = "status-badge";
-      startRecBtn.style.display = 'inline-flex';
-      stopRecBtn.style.display = 'none';
-    }
+  function dragMove(e) {
+    if (!activeDragItem) return; e.preventDefault();
+    const clientX = e.clientX || e.touches[0].clientX; const clientY = e.clientY || e.touches[0].clientY;
+    const container = activeDragItem.parentElement; const rect = container.getBoundingClientRect();
+    let left = clientX - rect.left - offsetX; let top = clientY - rect.top - offsetY;
+    left = Math.max(0, Math.min(left, rect.width - activeDragItem.offsetWidth)); top = Math.max(0, Math.min(top, rect.height - activeDragItem.offsetHeight));
+    activeDragItem.style.left = left + 'px'; activeDragItem.style.top = top + 'px';
   }
+  function dragEnd() { activeDragItem = null; document.removeEventListener('mousemove', dragMove); document.removeEventListener('mouseup', dragEnd); }
 </script>
-  
+
 <section id="contact">
 
 <h3>Contact Us</h3>
